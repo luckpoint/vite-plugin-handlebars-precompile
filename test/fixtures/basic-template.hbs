@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{{title}}</title>
+  <style>
+    .container {
+      padding: 20px;
+      margin: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>{{title}}</h1>
+    <p>{{description}}</p>
+    {{#if showButton}}
+      <button class="btn">{{buttonText}}</button>
+    {{/if}}
+  </div>
+</body>
+</html>
