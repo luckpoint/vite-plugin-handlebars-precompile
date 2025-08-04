@@ -22,15 +22,6 @@ describe('minification utils', () => {
   });
 
   describe('getFileCategory', () => {
-    it('should categorize files correctly', () => {
-      expect(getFileCategory('src/screens/login.hbs')).toBe('screens');
-      expect(getFileCategory('src/shared/header.hbs')).toBe('components');
-      expect(getFileCategory('src/header.hbs')).toBe('layout');
-      expect(getFileCategory('src/layout.hbs')).toBe('layout');
-      expect(getFileCategory('src/error-page/404.hbs')).toBe('error-pages');
-      expect(getFileCategory('unknown/path.hbs')).toBe('unknown');
-    });
-
     it('should use custom patterns when provided', () => {
       const customPatterns = [
         { pattern: 'custom/pages/**/*.hbs', category: 'pages' },

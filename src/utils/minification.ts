@@ -1,17 +1,5 @@
-// @ts-ignore - html-minifier-terserの型定義が不完全
 import { minify as minifyHTML } from 'html-minifier-terser';
 import type { MinificationOptions, MinificationPattern, CategoryConfig } from '../types';
-
-/**
- * パターンマッチング拡張 - Week 4 Option A
- */
-export const MINIFICATION_PATTERNS: MinificationPattern[] = [
-  { pattern: 'src/screens/**/*.hbs', category: 'screens' },
-  { pattern: 'src/shared/**/*.hbs', category: 'components' },
-  { pattern: 'src/header.hbs', category: 'layout' },
-  { pattern: 'src/layout.hbs', category: 'layout' },
-  { pattern: 'src/error-page/**/*.hbs', category: 'error-pages' }
-];
 
 /**
  * カテゴリ別最適化設定
@@ -67,11 +55,9 @@ export const MINIFY_OPTIONS: Record<'conservative' | 'aggressive', MinificationO
  */
 export function getFileCategory(
   filePath: string, 
-  customPatterns?: MinificationPattern[]
+  customPatterns: MinificationPattern[]
 ): string {
-  const patterns = customPatterns || MINIFICATION_PATTERNS;
-  
-  for (const pattern of patterns) {
+  for (const pattern of customPatterns) {
     if (matchesPattern(filePath, pattern.pattern)) {
       return pattern.category;
     }

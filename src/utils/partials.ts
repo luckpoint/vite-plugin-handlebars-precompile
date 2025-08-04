@@ -1,7 +1,8 @@
 import Handlebars from 'handlebars';
 import { readFileSync, existsSync, readdirSync, statSync } from 'fs';
-import { resolve, join, extname, basename } from 'path';
+import { join, extname } from 'path';
 import { minifyTemplate, getFileCategory } from './minification';
+import type { MinificationPattern } from '../types';
 
 /**
  * パーシャルを再帰的に検索して登録する関数
@@ -43,7 +44,8 @@ export async function generatePartialRegistrationCode(
   partialsDir: string,
   enableMinification: boolean,
   mode: string,
-  minificationLevel: 'conservative' | 'aggressive' = 'conservative'
+  minificationLevel: 'conservative' | 'aggressive' = 'conservative',
+  patterns: MinificationPattern[] = []
 ): Promise<string> {
   if (!existsSync(partialsDir)) {
     return '';
@@ -67,7 +69,7 @@ export async function generatePartialRegistrationCode(
         // minificationが有効な場合は適用
         if (enableMinification && mode === 'production') {
           try {
-            const category = getFileCategory(filePath);
+            const category = getFileCategory(filePath, patterns);
             partialContent = await minifyTemplate(partialContent, category, minificationLevel);
             console.log(`[handlebars-minify] [${category}] Partial ${filePath}: minified for registration`);
           } catch (error) {
@@ -82,7 +84,12 @@ export async function generatePartialRegistrationCode(
         const relativePath = filePath.replace(partialsDir, '').replace(/^[\/\\]/, '');
         const partialKey = relativePath.replace(/\.hbs$/, '').replace(/[\/\\]/g, '/');
         
-        registrationCode.push(`  Handlebars.registerPartial('${partialKey}', ${escapedContent});`);
+        // パーシャルもプリコンパイルする場合
+        const precompiledPartial = Handlebars.precompile(partialContent);
+        registrationCode.push(`  Handlebars.registerPartial('${partialKey}', Handlebars.template(${precompiledPartial}));`);
+        
+        // 生の文字列として登録する場合 実行時コンパイル）
+        // registrationCode.push(`  Handlebars.registerPartial('${partialKey}', ${escapedContent});`);
       }
     }
   }

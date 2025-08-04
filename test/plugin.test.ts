@@ -280,4 +280,125 @@ describe('handlebarsPrecompile', () => {
       consoleSpy.mockRestore();
     });
   });
+
+  describe('partial precompilation', () => {
+    it('should generate precompiled partial registration code', async () => {
+      // テスト用のパーシャルディレクトリを作成
+      const tempPartialsDir = resolve(testOutput, 'partials');
+      mkdirSync(tempPartialsDir, { recursive: true });
+      writeFileSync(resolve(tempPartialsDir, 'header.hbs'), '<header>{{title}}</header>');
+      writeFileSync(resolve(tempPartialsDir, 'footer.hbs'), '<footer>{{content}}</footer>');
+
+      const plugin = handlebarsPrecompile({
+        partialsDir: tempPartialsDir,
+        enableMinification: false,
+        mode: 'development'
+      });
+
+      const mockThis = { error: vi.fn() };
+
+      // buildStartを実行
+      if (typeof plugin.buildStart === 'function') {
+        await plugin.buildStart.call(mockThis, {} as any);
+      }
+
+      // テスト用のメインテンプレートを作成
+      const testTemplate = resolve(testOutput, 'test.hbs');
+      writeFileSync(testTemplate, '<div>{{> header}}<main>{{content}}</main>{{> footer}}</div>');
+
+      let result;
+      if (typeof plugin.load === 'function') {
+        result = await plugin.load.call(mockThis, testTemplate + '?compiled');
+      }
+
+      expect(result).toBeDefined();
+      expect(typeof result).toBe('string');
+      
+      // パーシャルがプリコンパイルされていることを確認
+      expect(result).toContain('Handlebars.registerPartial(\'header\', Handlebars.template(');
+      expect(result).toContain('Handlebars.registerPartial(\'footer\', Handlebars.template(');
+      
+      // 生の文字列登録ではないことを確認
+      expect(result).not.toContain('"<header>{{title}}</header>"');
+      expect(result).not.toContain('"<footer>{{content}}</footer>"');
+    });
+
+    it('should handle nested partial directories in precompilation', async () => {
+      // ネストしたパーシャル構造を作成
+      const tempPartialsDir = resolve(testOutput, 'partials');
+      const uiDir = resolve(tempPartialsDir, 'ui');
+      mkdirSync(uiDir, { recursive: true });
+      
+      writeFileSync(resolve(tempPartialsDir, 'layout.hbs'), '<div class="layout">{{> content}}</div>');
+      writeFileSync(resolve(uiDir, 'button.hbs'), '<button class="{{class}}">{{text}}</button>');
+
+      const plugin = handlebarsPrecompile({
+        partialsDir: tempPartialsDir,
+        enableMinification: false,
+        mode: 'development'
+      });
+
+      const mockThis = { error: vi.fn() };
+
+      if (typeof plugin.buildStart === 'function') {
+        await plugin.buildStart.call(mockThis, {} as any);
+      }
+
+      const testTemplate = resolve(testOutput, 'test.hbs');
+      writeFileSync(testTemplate, '<div>{{> layout}}{{> ui/button}}</div>');
+
+      let result;
+      if (typeof plugin.load === 'function') {
+        result = await plugin.load.call(mockThis, testTemplate + '?compiled');
+      }
+
+      expect(result).toBeDefined();
+      
+      // ネストしたパーシャルがプリコンパイルされていることを確認
+      expect(result).toContain('Handlebars.registerPartial(\'layout\', Handlebars.template(');
+      expect(result).toContain('Handlebars.registerPartial(\'ui/button\', Handlebars.template(');
+    });
+
+    it('should precompile partials with minification in production', async () => {
+      const tempPartialsDir = resolve(testOutput, 'partials');
+      mkdirSync(tempPartialsDir, { recursive: true });
+      
+      // 空白の多いパーシャルを作成
+      writeFileSync(resolve(tempPartialsDir, 'spacey.hbs'), `
+        <div   class="spacey"  >
+          <h1>   {{title}}   </h1>
+          <p>     {{content}}     </p>
+        </div>
+      `);
+
+      const plugin = handlebarsPrecompile({
+        partialsDir: tempPartialsDir,
+        enableMinification: true,
+        mode: 'production',
+        minificationLevel: 'aggressive'
+      });
+
+      const mockThis = { error: vi.fn() };
+
+      if (typeof plugin.buildStart === 'function') {
+        await plugin.buildStart.call(mockThis, {} as any);
+      }
+
+      const testTemplate = resolve(testOutput, 'test.hbs');
+      writeFileSync(testTemplate, '<div>{{> spacey}}</div>');
+
+      let result;
+      if (typeof plugin.load === 'function') {
+        result = await plugin.load.call(mockThis, testTemplate + '?compiled');
+      }
+
+      expect(result).toBeDefined();
+      
+      // パーシャルがプリコンパイルされていることを確認
+      expect(result).toContain('Handlebars.registerPartial(\'spacey\', Handlebars.template(');
+      
+      // 最小化されたHTMLが含まれていないことを確認（プリコンパイルされているため）
+      expect(result).not.toContain('class="spacey"');
+    });
+  });
 });

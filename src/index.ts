@@ -74,7 +74,7 @@ export function handlebarsPrecompile(options: PluginOptions = {}): Plugin {
               const originalSize = templateSource.length;
               
               // ファイルパスからカテゴリを判定
-              const category = getFileCategory(filePath, patterns);
+              const category = getFileCategory(filePath, patterns || []);
               templateSource = await minifyTemplate(templateSource, category, minificationLevel, categoryConfigs);
 
               const minifiedSize = templateSource.length;
@@ -133,7 +133,8 @@ export function handlebarsPrecompile(options: PluginOptions = {}): Plugin {
             resolve(partialsDir),
             enableMinification,
             mode,
-            minificationLevel
+            minificationLevel,
+            patterns
           );
           
           const moduleCode = `

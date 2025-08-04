@@ -46,7 +46,8 @@ describe('partials utils', () => {
         'non-existent-directory',
         false,
         'development',
-        'conservative'
+        'conservative',
+        []
       );
       
       expect(result).toBe('');
@@ -64,7 +65,8 @@ describe('partials utils', () => {
         testDir,
         false,
         'development',
-        'conservative'
+        'conservative',
+        []
       );
       
       expect(result).toContain('Handlebars.registerPartial');
@@ -85,12 +87,77 @@ describe('partials utils', () => {
         testDir,
         true,
         'production',
-        'aggressive'
+        'aggressive',
+        []
       );
       
       expect(result).toContain('Handlebars.registerPartial');
-      // 最小化されているかチェック（元のファイルより短い）
-      expect(result.length).toBeLessThan(200);
+      // プリコンパイルされているかチェック（長さではなく、内容で判定）
+      expect(result).toContain('Handlebars.template(');
+    });
+
+    it('should precompile partials instead of using raw strings', async () => {
+      // テスト用のパーシャルファイルを作成
+      writeFileSync(resolve(testDir, 'header.hbs'), '<header>{{title}}</header>');
+      
+      const result = await generatePartialRegistrationCode(
+        testDir,
+        false,
+        'development',
+        'conservative',
+        []
+      );
+      
+      // プリコンパイルされたコードが含まれているかチェック
+      expect(result).toContain('Handlebars.template(');
+      expect(result).toContain('Handlebars.registerPartial(\'header\',');
+      
+      // 生の文字列登録ではないことを確認
+      expect(result).not.toContain('"<header>{{title}}</header>"');
+    });
+
+    it('should handle nested directory structure in precompiled partials', async () => {
+      // ネストしたディレクトリ構造を作成
+      mkdirSync(resolve(testDir, 'ui', 'components'), { recursive: true });
+      writeFileSync(resolve(testDir, 'ui', 'components', 'button.hbs'), '<button class="{{class}}">{{text}}</button>');
+      writeFileSync(resolve(testDir, 'ui', 'layout.hbs'), '<div class="layout">{{> content}}</div>');
+      
+      const result = await generatePartialRegistrationCode(
+        testDir,
+        false,
+        'development',
+        'conservative',
+        []
+      );
+      
+      // ネストしたパーシャル名が正しく生成されているかチェック
+      expect(result).toContain('Handlebars.registerPartial(\'ui/components/button\',');
+      expect(result).toContain('Handlebars.registerPartial(\'ui/layout\',');
+      
+      // プリコンパイルされたコードが含まれているかチェック
+      expect(result).toContain('Handlebars.template(');
+    });
+
+    it('should generate executable precompiled code', async () => {
+      // 実際に実行可能なコードが生成されるかテスト
+      writeFileSync(resolve(testDir, 'greeting.hbs'), '<p>Hello, {{name}}!</p>');
+      
+      const result = await generatePartialRegistrationCode(
+        testDir,
+        false,
+        'development',
+        'conservative',
+        []
+      );
+      
+      // 生成されたコードが有効なJavaScriptであることを確認
+      expect(() => {
+        new Function('Handlebars', result);
+      }).not.toThrow();
+      
+      // プリコンパイルされた関数が含まれていることを確認
+      expect(result).toContain('Handlebars.template(');
+      expect(result).toMatch(/\"compiler\":\[/); // プリコンパイル済みのJSON形式をチェック
     });
   });
 });

@@ -42,6 +42,7 @@ export default defineConfig({
 
 ```javascript
 // Import and use precompiled templates
+// Note: Each .hbs file must be explicitly imported with ?compiled query
 import template from './template.hbs?compiled';
 
 // Render with data
@@ -52,6 +53,8 @@ const html = template({
 
 document.body.innerHTML = html;
 ```
+
+> **Important**: The plugin processes `.hbs` files on-demand when they are imported with the `?compiled` query parameter. It does not automatically scan or process all `.hbs` files in your project.
 
 ## Configuration
 
