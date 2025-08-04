@@ -5,7 +5,7 @@ import { minifyTemplate, getFileCategory } from './minification';
 import type { MinificationPattern } from '../types';
 
 /**
- * パーシャルを再帰的に検索して登録する関数
+ * Function to recursively search and register partials
  */
 export function registerPartials(partialsDir: string): void {
   if (!existsSync(partialsDir)) {
@@ -21,13 +21,13 @@ export function registerPartials(partialsDir: string): void {
     const stat = statSync(filePath);
     
     if (stat.isDirectory()) {
-      // サブディレクトリも再帰的に処理
+      // Process subdirectories recursively
       registerPartials(filePath);
     } else if (extname(file) === '.hbs') {
-      // .hbs ファイルをパーシャルとして登録
+      // Register .hbs files as partials
       const partialContent = readFileSync(filePath, 'utf-8');
       
-      // パーシャル名にディレクトリ構造を反映
+      // Reflect directory structure in partial names
       const relativePath = filePath.replace(partialsDir, '').replace(/^[/\\]/, '');
       const partialKey = relativePath.replace(/\.hbs$/, '').replace(/[/\\]/g, '/');
       
@@ -38,7 +38,7 @@ export function registerPartials(partialsDir: string): void {
 }
 
 /**
- * パーシャル登録用のJavaScriptコードを生成（minification対応）
+ * Generate JavaScript code for partial registration (with minification support)
  */
 export async function generatePartialRegistrationCode(
   partialsDir: string,
@@ -61,12 +61,12 @@ export async function generatePartialRegistrationCode(
       const stat = statSync(filePath);
       
       if (stat.isDirectory()) {
-        // サブディレクトリも再帰的に処理
+        // Process subdirectories recursively
         await processDirectory(filePath);
       } else if (extname(file) === '.hbs') {
         let partialContent = readFileSync(filePath, 'utf-8');
         
-        // minificationが有効な場合は適用
+        // Apply minification if enabled
         if (enableMinification && mode === 'production') {
           try {
             const category = getFileCategory(filePath, patterns);
@@ -77,15 +77,15 @@ export async function generatePartialRegistrationCode(
           }
         }
         
-        // パーシャル名にディレクトリ構造を反映
+        // Reflect directory structure in partial names
         const relativePath = filePath.replace(partialsDir, '').replace(/^[/\\]/, '');
         const partialKey = relativePath.replace(/\.hbs$/, '').replace(/[/\\]/g, '/');
         
-        // パーシャルもプリコンパイルする場合
+        // When precompiling partials as well
         const precompiledPartial = Handlebars.precompile(partialContent);
         registrationCode.push(`  Handlebars.registerPartial('${partialKey}', Handlebars.template(${precompiledPartial}));`);
         
-        // 生の文字列として登録する場合 実行時コンパイル）
+        // When registering as raw strings (runtime compilation)
         // registrationCode.push(`  Handlebars.registerPartial('${partialKey}', ${escapedContent});`);
       }
     }

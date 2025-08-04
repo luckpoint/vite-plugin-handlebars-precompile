@@ -2,7 +2,7 @@ import { minify as minifyHTML } from 'html-minifier-terser';
 import type { MinificationOptions, MinificationPattern, CategoryConfig } from '../types';
 
 /**
- * カテゴリ別最適化設定
+ * Category-specific optimization settings
  */
 export const CATEGORY_CONFIGS: Record<string, CategoryConfig> = {
   screens: { level: 'aggressive', priority: 'high' },
@@ -12,10 +12,10 @@ export const CATEGORY_CONFIGS: Record<string, CategoryConfig> = {
 };
 
 /**
- * Handlebars用HTML minification設定
+ * HTML minification settings for Handlebars
  */
 export const MINIFY_OPTIONS: Record<'conservative' | 'aggressive', MinificationOptions> = {
-  // 保守的設定
+  // Conservative settings
   conservative: {
     collapseWhitespace: true,
     removeComments: true,
@@ -28,7 +28,7 @@ export const MINIFY_OPTIONS: Record<'conservative' | 'aggressive', MinificationO
       /\{\{![\s\S]*?\}\}/,       // Handlebars comments
     ]
   },
-  // 積極的設定  
+  // Aggressive settings  
   aggressive: {
     collapseWhitespace: true,
     removeComments: true,
@@ -51,7 +51,7 @@ export const MINIFY_OPTIONS: Record<'conservative' | 'aggressive', MinificationO
 };
 
 /**
- * ファイルパスからカテゴリを判定するヘルパー関数
+ * Helper function to determine category from file path
  */
 export function getFileCategory(
   filePath: string, 
@@ -66,10 +66,10 @@ export function getFileCategory(
 }
 
 /**
- * パターンマッチング（簡易実装）
+ * Pattern matching (simple implementation)
  */
 export function matchesPattern(filePath: string, pattern: string): boolean {
-  // 絶対パスを相対パスに変換
+  // Convert absolute path to relative path
   const normalizedPath = filePath.replace(/\\/g, '/');
   const relativePath = normalizedPath.replace(process.cwd().replace(/\\/g, '/') + '/', '');
   const normalizedPattern = pattern.replace(/\\/g, '/');
@@ -80,11 +80,11 @@ export function matchesPattern(filePath: string, pattern: string): boolean {
       const prefix = parts[0];
       const suffix = parts[1];
       
-      // **/*.hbs パターンの場合、prefix部分のマッチと.hbsの拡張子をチェック
+      // For **/*.hbs patterns, check prefix match and .hbs extension
       const cleanSuffix = suffix.startsWith('/') ? suffix.substring(1) : suffix;
       
       if (cleanSuffix === '*.hbs') {
-        // *.hbs の場合は .hbs で終わることだけをチェック
+        // For *.hbs, just check that it ends with .hbs
         return relativePath.startsWith(prefix) && relativePath.endsWith('.hbs');
       } else {
         return relativePath.startsWith(prefix) && relativePath.endsWith(cleanSuffix);
@@ -97,7 +97,7 @@ export function matchesPattern(filePath: string, pattern: string): boolean {
 }
 
 /**
- * HTML最小化を実行する関数
+ * Function to execute HTML minification
  */
 export async function minifyTemplate(
   templateSource: string,

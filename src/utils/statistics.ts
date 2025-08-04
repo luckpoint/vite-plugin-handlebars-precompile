@@ -2,7 +2,7 @@ import { writeFileSync } from 'fs';
 import type { MinificationStats, FileDetail } from '../types';
 
 /**
- * 統計データのJSON出力
+ * JSON export of statistics data
  */
 export function exportStatistics(stats: MinificationStats, minificationLevel: string): void {
   const statsOutput = {
@@ -44,7 +44,7 @@ export function exportStatistics(stats: MinificationStats, minificationLevel: st
 }
 
 /**
- * 統計データの初期化
+ * Initialize statistics data
  */
 export function createMinificationStats(): MinificationStats {
   return {
@@ -72,7 +72,7 @@ export function createMinificationStats(): MinificationStats {
 }
 
 /**
- * ファイル詳細情報を統計に追加
+ * Add file detail information to statistics
  */
 export function updateFileStats(
   stats: MinificationStats,
@@ -83,17 +83,17 @@ export function updateFileStats(
   stats.totalMinifiedSize += fileDetail.minifiedSize;
   stats.fileDetails.push(fileDetail);
   
-  // カテゴリ別統計を更新
+  // Update category-specific statistics
   if (stats.categories[fileDetail.category]) {
     stats.categories[fileDetail.category].files++;
     stats.categories[fileDetail.category].originalSize += fileDetail.originalSize;
     stats.categories[fileDetail.category].minifiedSize += fileDetail.minifiedSize;
   }
   
-  // パフォーマンスメトリクス更新
+  // Update performance metrics
   const metrics = stats.performanceMetrics;
   
-  // 最大・最小ファイルサイズの追跡
+  // Track largest and smallest file sizes
   if (fileDetail.originalSize > metrics.largestFile.originalSize) {
     metrics.largestFile = { ...fileDetail };
   }
@@ -101,7 +101,7 @@ export function updateFileStats(
     metrics.smallestFile = { ...fileDetail };
   }
   
-  // 最良・最悪の圧縮率追跡
+  // Track best and worst compression ratios
   if (fileDetail.reduction > metrics.bestReduction.reduction) {
     metrics.bestReduction = { ...fileDetail };
   }
@@ -111,7 +111,7 @@ export function updateFileStats(
 }
 
 /**
- * 統計レポートを出力
+ * Output statistics report
  */
 export function printStatisticsReport(stats: MinificationStats): void {
   if (stats.totalFiles === 0) return;
@@ -123,7 +123,7 @@ export function printStatisticsReport(stats: MinificationStats): void {
   console.log('\n📊 [handlebars-minify] Comprehensive Build Statistics:');
   console.log('═'.repeat(60));
   
-  // 基本統計
+  // Basic statistics
   console.log('📈 Overall Performance:');
   console.log(`   Files processed: ${stats.totalFiles}`);
   console.log(`   Original size: ${stats.totalOriginalSize.toLocaleString()} bytes`);
@@ -132,6 +132,7 @@ export function printStatisticsReport(stats: MinificationStats): void {
   console.log(`   Processing time: ${buildTime}ms`);
   
   // カテゴリ別統計
+  // Category-specific statistics
   console.log('\n📊 Category Breakdown:');
   Object.entries(stats.categories).forEach(([category, categoryStats]) => {
     if (categoryStats.files > 0) {
@@ -141,7 +142,7 @@ export function printStatisticsReport(stats: MinificationStats): void {
     }
   });
   
-  // パフォーマンスハイライト
+  // Performance highlights
   if (stats.fileDetails.length > 0) {
     console.log('\n🏆 Performance Highlights:');
     
@@ -157,14 +158,14 @@ export function printStatisticsReport(stats: MinificationStats): void {
       console.log(`   Lowest compression: ${metrics.worstReduction.name} (${metrics.worstReduction.reduction}% reduction)`);
     }
     
-    // 平均値計算
+    // Calculate averages
     const avgReduction = (stats.fileDetails.reduce((sum, file) => sum + file.reduction, 0) / stats.fileDetails.length).toFixed(1);
     const avgFileSize = Math.round(stats.totalOriginalSize / stats.totalFiles);
     console.log(`   Average reduction: ${avgReduction}%`);
     console.log(`   Average file size: ${avgFileSize.toLocaleString()} bytes`);
   }
   
-  // エラー・警告レポート
+  // Error and warning report
   if (stats.errors.length > 0 || stats.warnings.length > 0) {
     console.log('\n⚠️  Issues Summary:');
     if (stats.errors.length > 0) {
@@ -178,7 +179,7 @@ export function printStatisticsReport(stats: MinificationStats): void {
     }
   }
   
-  // ファイル別詳細（オプション）
+  // Detailed file report (optional)
   if (process.env.VITE_MINIFY_DETAILED_LOG === 'true') {
     console.log('\n📄 Detailed File Report:');
     stats.fileDetails

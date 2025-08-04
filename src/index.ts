@@ -34,12 +34,12 @@ export function handlebarsPrecompile(options: PluginOptions = {}): Plugin {
   return {
     name: 'handlebars-precompile',
     buildStart() {
-      // ビルド開始時にパーシャルを登録
+      // Register partials at build start
       const fullPartialsDir = resolve(partialsDir);
       registerPartials(fullPartialsDir);
       partialsRegistered = true;
       
-      // 統計データ初期化
+      // Initialize statistics data
       if (enableMinification && mode === 'production') {
         minificationStats.startTime = Date.now();
         console.log(`[handlebars-minify] Starting minification with ${minificationLevel} level`);
@@ -47,17 +47,17 @@ export function handlebarsPrecompile(options: PluginOptions = {}): Plugin {
     },
     
     async load(id: string) {
-      // ?compiled クエリパラメータが付いた .hbs ファイルを処理
+      // Process .hbs files with ?compiled query parameter
       if (id.endsWith('.hbs?compiled')) {
         const filePath = id.replace('?compiled', '');
         
-        // ファイルの存在確認
+        // Check file existence
         if (!existsSync(filePath)) {
           this.error(`Handlebars template file not found: ${filePath}`);
           return;
         }
         
-        // パーシャルがまだ登録されていない場合は登録
+        // Register partials if not already registered
         if (!partialsRegistered) {
           const fullPartialsDir = resolve(partialsDir);
           registerPartials(fullPartialsDir);
@@ -65,22 +65,22 @@ export function handlebarsPrecompile(options: PluginOptions = {}): Plugin {
         }
         
         try {
-          // .hbs ファイルを読み込み
+          // Load .hbs file
           let templateSource = readFileSync(filePath, 'utf-8');
           
-          // HTML minificationをproductionビルドでのみ有効化
+          // Enable HTML minification for production builds only
           if (enableMinification && mode === 'production') {
             try {
               const originalSize = templateSource.length;
               
-              // ファイルパスからカテゴリを判定
+              // Determine category from file path
               const category = getFileCategory(filePath, patterns || []);
               templateSource = await minifyTemplate(templateSource, category, minificationLevel, categoryConfigs);
 
               const minifiedSize = templateSource.length;
               const reduction = parseFloat(((originalSize - minifiedSize) / originalSize * 100).toFixed(1));
               
-              // ファイル詳細情報を記録
+              // Record file detail information
               const fileDetail: FileDetail = {
                 name: filePath.replace(process.cwd(), ''),
                 category,
@@ -100,7 +100,7 @@ export function handlebarsPrecompile(options: PluginOptions = {}): Plugin {
               console.warn(`[handlebars-minify] Minification failed for ${filePath}:`, (minifyError as Error).message);
               console.warn(`[handlebars-minify] Using original template source as fallback`);
               
-              // エラー統計
+              // Error statistics
               minificationStats.errors.push({
                 file: filePath.replace(process.cwd(), ''),
                 error: (minifyError as Error).message,
@@ -108,7 +108,7 @@ export function handlebarsPrecompile(options: PluginOptions = {}): Plugin {
                 fallbackUsed: true
               });
               
-              // 警告としても記録
+              // Also record as warning
               minificationStats.warnings.push({
                 file: filePath.replace(process.cwd(), ''),
                 message: `Minification failed, using original template`,
@@ -117,18 +117,18 @@ export function handlebarsPrecompile(options: PluginOptions = {}): Plugin {
             }
           }
           
-          // デバッグ用：テンプレートソースにCSS変数が含まれているか確認
+          // Debug: Check if template source contains CSS variables
           if (templateSource.includes('var(--')) {
             console.log(`[handlebars-precompile] CSS variables found in: ${filePath}`);
           }
           
-          // Handlebars でプリコンパイル
+          // Precompile with Handlebars
           const precompiled = Handlebars.precompile(templateSource, {
             strict: false,
             assumeObjects: false
           });
           
-          // プリコンパイルされたテンプレート関数を返すESモジュールとして出力
+          // Output as ES module that returns precompiled template functions
           const partialRegistrationCode = await generatePartialRegistrationCode(
             resolve(partialsDir),
             enableMinification,
@@ -140,10 +140,10 @@ export function handlebarsPrecompile(options: PluginOptions = {}): Plugin {
           const moduleCode = `
 import Handlebars from 'handlebars';
 
-// パーシャルを登録
+// Register partials
 ${partialRegistrationCode}
 
-// プリコンパイルされたテンプレート (from: ${filePath})
+// Precompiled template (from: ${filePath})
 const template = Handlebars.template(${precompiled});
 
 export default template;
@@ -156,23 +156,23 @@ export default template;
       }
     },
     
-    // ビルド終了時の詳細統計出力
+    // Output detailed statistics at build end
     buildEnd() {
       if (enableMinification && mode === 'production' && minificationStats.totalFiles > 0) {
         minificationStats.endTime = Date.now();
         printStatisticsReport(minificationStats);
         
-        // JSON統計ファイル出力（オプション）
+        // JSON statistics file output (optional)
         if (exportStats) {
           exportStatistics(minificationStats, minificationLevel);
         }
       }
     },
     
-    // 開発時のホットリロード対応
+    // Hot reload support for development
     handleHotUpdate({ file, server }: { file: string; server: ViteDevServer }) {
       if (file.endsWith('.hbs')) {
-        // .hbs ファイルが変更されたら、?compiled を使用しているモジュールも更新
+        // When .hbs file changes, also update modules using ?compiled
         const moduleGraph = server.moduleGraph;
         const compiledModuleId = file + '?compiled';
         const compiledModule = moduleGraph.getModuleById(compiledModuleId);
@@ -185,7 +185,7 @@ export default template;
   };
 }
 
-// 型定義をエクスポート
+// Export type definitions
 export type { 
   PluginOptions, 
   MinificationOptions, 
