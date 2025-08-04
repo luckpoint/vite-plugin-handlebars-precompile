@@ -18,7 +18,7 @@ import {
  */
 export function handlebarsPrecompile(options: PluginOptions = {}): Plugin {
   const { 
-    partialsDir = 'src/shared', 
+    partialsDir = 'src/partials', 
     enableMinification = true, 
     mode = 'development',
     minificationLevel = 'aggressive',

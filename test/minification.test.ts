@@ -12,7 +12,7 @@ describe('minification utils', () => {
     it('should match wildcard patterns', () => {
       expect(matchesPattern('src/screens/login.hbs', 'src/screens/**/*.hbs')).toBe(true);
       expect(matchesPattern('src/screens/deep/nested.hbs', 'src/screens/**/*.hbs')).toBe(true);
-      expect(matchesPattern('src/shared/component.hbs', 'src/screens/**/*.hbs')).toBe(false);
+      expect(matchesPattern('src/partials/component.hbs', 'src/screens/**/*.hbs')).toBe(false);
     });
 
     it('should handle different path separators', () => {

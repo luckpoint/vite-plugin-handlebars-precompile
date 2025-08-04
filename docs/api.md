@@ -55,7 +55,7 @@ interface PluginOptions {
 #### `partialsDir`
 
 - **Type:** `string`
-- **Default:** `'src/shared'`
+- **Default:** `'src/partials'`
 - **Description:** Directory path where partial templates are located. The plugin recursively scans this directory for `.hbs` files and automatically registers them as partials.
 
 ```typescript
@@ -174,7 +174,7 @@ interface MinificationPattern {
 ```typescript
 const patterns: MinificationPattern[] = [
   { pattern: 'src/screens/**/*.hbs', category: 'screens' },
-  { pattern: 'src/shared/**/*.hbs', category: 'components' },
+  { pattern: 'src/partials/**/*.hbs', category: 'components' },
   { pattern: 'src/layout.hbs', category: 'layout' }
 ];
 ```
@@ -267,7 +267,7 @@ const CATEGORY_CONFIGS = {
 ```typescript
 const MINIFICATION_PATTERNS = [
   { pattern: 'src/screens/**/*.hbs', category: 'screens' },
-  { pattern: 'src/shared/**/*.hbs', category: 'components' },
+  { pattern: 'src/partials/**/*.hbs', category: 'components' },
   { pattern: 'src/header.hbs', category: 'layout' },
   { pattern: 'src/layout.hbs', category: 'layout' },
   { pattern: 'src/error-page/**/*.hbs', category: 'error-pages' }
@@ -419,7 +419,7 @@ VITE_MINIFY_DETAILED_LOG=true npm run build
 ```
 📄 Detailed File Report:
    [screens] src/pages/home.hbs: 2,340 → 1,567 bytes (33.0%, aggressive)
-   [components] src/shared/header.hbs: 890 → 712 bytes (20.0%, conservative)
+   [components] src/partials/header.hbs: 890 → 712 bytes (20.0%, conservative)
    [layout] src/layout.hbs: 1,230 → 834 bytes (32.2%, aggressive)
 ```
 

@@ -4,14 +4,13 @@ A Vite plugin for precompiling Handlebars templates with HTML minification suppo
 
 ## Features
 
-- ✨ **Precompile Handlebars templates** at build time for optimal performance
-- 🗜️ **HTML minification** with Handlebars-aware parsing and category-based optimization
-- 📊 **Detailed build statistics** with comprehensive reporting and metrics
-- 🔄 **Auto-registration of partials** with recursive directory scanning
-- 🎯 **Category-based optimization** with customizable minification levels
-- 🔥 **Hot reload support** in development mode
-- 📦 **TypeScript support** with full type definitions
-- 🛠️ **ESM and CommonJS** compatible
+- **Precompile Handlebars templates** at build time for optimal performance
+- **HTML minification** with Handlebars-aware parsing and category-based optimization
+- **Detailed build statistics** with comprehensive reporting and metrics
+- **Auto-registration of partials** with recursive directory scanning
+- **Hot reload support** in development mode
+- **TypeScript support** with full type definitions
+- **ESM and CommonJS** compatible
 
 ## Installation
 
@@ -62,7 +61,7 @@ document.body.innerHTML = html;
 
 ```typescript
 interface PluginOptions {
-  partialsDir?: string;                    // Default: 'src/shared'
+  partialsDir?: string;                    // Default: 'src/partials'
   enableMinification?: boolean;            // Default: true
   mode?: string;                          // Default: 'development'
   minificationLevel?: 'conservative' | 'aggressive'; // Default: 'aggressive'
@@ -106,7 +105,7 @@ src/
 ├── pages/
 │   ├── home.hbs
 │   └── about.hbs
-├── components/          # Partials directory
+├── partials/            # Partials directory (default)
 │   ├── header.hbs
 │   ├── footer.hbs
 │   └── ui/
@@ -304,7 +303,7 @@ Warning: Minification failed for template.hbs: unexpected token
 
 #### Partials Not Found
 ```bash
-Warning: Partials directory not found: src/shared
+Warning: Partials directory not found: src/partials
 ```
 **Solution**: Create the partials directory or configure the correct path with `partialsDir` option.
 
@@ -359,11 +358,7 @@ npm run test:coverage
 
 ## License
 
-MIT License. See [LICENSE](LICENSE) for details.
-
-## Changelog
-
-See [CHANGELOG.md](CHANGELOG.md) for release history.
+MIT License. 
 
 ## Related
 
