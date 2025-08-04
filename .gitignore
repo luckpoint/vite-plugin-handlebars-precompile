@@ -42,5 +42,11 @@ Thumbs.db
 stats.json
 minification-stats.json
 
+# Benchmark results
+benchmark/benchmark-results.json
+benchmark/vite-build-benchmark.json
+benchmark/templates/
+benchmark/test-project/
+
 # Original JavaScript file (保持するが、gitで追跡しない)
 vite-plugin-handlebars-precompile.js
