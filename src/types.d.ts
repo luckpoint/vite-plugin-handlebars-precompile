@@ -11,7 +11,7 @@ declare module 'html-minifier-terser' {
     minifyJS?: boolean;
     preserveLineBreaks?: boolean;
     ignoreCustomFragments?: RegExp[];
-    [key: string]: any;
+    [key: string]: unknown;
   }
 
   function minify(text: string, options?: Options): Promise<string>;

@@ -1,7 +1,7 @@
 import Handlebars from 'handlebars';
 import { readFileSync, existsSync } from 'fs';
 import { resolve } from 'path';
-import type { Plugin } from 'vite';
+import type { Plugin, ViteDevServer } from 'vite';
 import type { PluginOptions, FileDetail } from './types';
 import { getFileCategory, minifyTemplate } from './utils/minification';
 import { registerPartials, generatePartialRegistrationCode } from './utils/partials';
@@ -29,7 +29,7 @@ export function handlebarsPrecompile(options: PluginOptions = {}): Plugin {
   } = options;
   
   let partialsRegistered = false;
-  let minificationStats = createMinificationStats();
+  const minificationStats = createMinificationStats();
   
   return {
     name: 'handlebars-precompile',
@@ -170,7 +170,7 @@ export default template;
     },
     
     // 開発時のホットリロード対応
-    handleHotUpdate({ file, server }: { file: string; server: any }) {
+    handleHotUpdate({ file, server }: { file: string; server: ViteDevServer }) {
       if (file.endsWith('.hbs')) {
         // .hbs ファイルが変更されたら、?compiled を使用しているモジュールも更新
         const moduleGraph = server.moduleGraph;

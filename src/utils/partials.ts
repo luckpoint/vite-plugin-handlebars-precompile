@@ -28,8 +28,8 @@ export function registerPartials(partialsDir: string): void {
       const partialContent = readFileSync(filePath, 'utf-8');
       
       // パーシャル名にディレクトリ構造を反映
-      const relativePath = filePath.replace(partialsDir, '').replace(/^[\/\\]/, '');
-      const partialKey = relativePath.replace(/\.hbs$/, '').replace(/[\/\\]/g, '/');
+      const relativePath = filePath.replace(partialsDir, '').replace(/^[/\\]/, '');
+      const partialKey = relativePath.replace(/\.hbs$/, '').replace(/[/\\]/g, '/');
       
       Handlebars.registerPartial(partialKey, partialContent);
       console.log(`[handlebars-precompile] Registered partial: ${partialKey} (file: ${file})`);
@@ -77,12 +77,9 @@ export async function generatePartialRegistrationCode(
           }
         }
         
-        // JavaScript文字列として安全にエスケープ
-        const escapedContent = JSON.stringify(partialContent);
-        
         // パーシャル名にディレクトリ構造を反映
-        const relativePath = filePath.replace(partialsDir, '').replace(/^[\/\\]/, '');
-        const partialKey = relativePath.replace(/\.hbs$/, '').replace(/[\/\\]/g, '/');
+        const relativePath = filePath.replace(partialsDir, '').replace(/^[/\\]/, '');
+        const partialKey = relativePath.replace(/\.hbs$/, '').replace(/[/\\]/g, '/');
         
         // パーシャルもプリコンパイルする場合
         const precompiledPartial = Handlebars.precompile(partialContent);

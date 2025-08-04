@@ -1,5 +1,5 @@
 import { writeFileSync } from 'fs';
-import type { MinificationStats, FileDetail, PerformanceMetrics } from '../types';
+import type { MinificationStats, FileDetail } from '../types';
 
 /**
  * 統計データのJSON出力

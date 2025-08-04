@@ -106,7 +106,7 @@ export async function minifyTemplate(
   customCategoryConfigs?: Record<string, CategoryConfig>
 ): Promise<string> {
   const categoryConfigs = customCategoryConfigs || CATEGORY_CONFIGS;
-  const categoryConfig = categoryConfigs[category] || { level: 'conservative' };
+  const categoryConfig = categoryConfigs[category] || { level };
   const effectiveLevel = categoryConfig.level;
   const minifyOptions = MINIFY_OPTIONS[effectiveLevel] || MINIFY_OPTIONS.conservative;
   
